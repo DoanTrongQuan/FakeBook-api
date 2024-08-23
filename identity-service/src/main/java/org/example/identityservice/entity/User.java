@@ -22,6 +22,7 @@ import java.util.Set;
 @Table(name = "user")
 @Builder
 public class User extends BaseEntity implements UserDetails {
+    private String uuid;
     private String email;
     private String username;
     private String password;

@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserProfileRepo extends Neo4jRepository<UserProfile, String> {
-
+    UserProfile findByUserId(String userId);
 }

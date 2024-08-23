@@ -2,6 +2,7 @@ package com.example.profileservice.controller;
 import com.example.profileservice.dto.ApiResponse;
 import com.example.profileservice.dto.request.CreateUserProfileRequest;
 import com.example.profileservice.dto.response.CreateUserProfileResponse;
+import com.example.profileservice.dto.response.UserProfileResponse;
 import com.example.profileservice.service.implement.UserProfileService;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,7 @@ public class UserProfileController {
     private UserProfileService userProfileService;
 
 
-    @PostMapping("/users")
+    @PostMapping("/create-profile")
     ApiResponse<CreateUserProfileResponse> createProfile(@RequestBody CreateUserProfileRequest request) throws Exception {
         try {
             CreateUserProfileResponse response = userProfileService.createUserProfile(request);
@@ -34,4 +35,6 @@ public class UserProfileController {
             throw new RuntimeException(e);
         }
     }
+
+
 }
