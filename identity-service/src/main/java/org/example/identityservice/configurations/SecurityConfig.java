@@ -2,7 +2,6 @@ package org.example.identityservice.configurations;
 
 
 import lombok.RequiredArgsConstructor;
-
 import org.example.identityservice.repository.UserRepo;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final UserRepo userRepository;
+
     //user's detail object
     @Bean
     public UserDetailsService userDetailsService() {
@@ -27,12 +27,14 @@ public class SecurityConfig {
                 .findByEmail(email)
                 .orElseThrow(() ->
                         new UsernameNotFoundException(
-                                "Cannot find user with phone number = "+ email));
+                                "Cannot find user with phone number = " + email));
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();

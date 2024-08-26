@@ -15,7 +15,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Table(name = "role")
 @Builder
-public class Role extends BaseEntity{
+public class Role extends BaseEntity {
     private String code;
 
     private String roleName;
@@ -26,7 +26,6 @@ public class Role extends BaseEntity{
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonBackReference
     private Set<UserRole> userRoles;
-
 
 
     public static String ADMIN = "ADMIN";

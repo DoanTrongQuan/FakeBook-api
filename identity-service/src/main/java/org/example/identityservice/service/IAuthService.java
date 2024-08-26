@@ -7,6 +7,8 @@ import org.example.identityservice.dto.response.TokenResponse;
 
 public interface IAuthService {
     String createUser(CreateUserRequest createUserRequest) throws Exception;
+
     LoginResponse login(LoginRequest loginRequest) throws Exception;
+
     TokenResponse refreshToken(String refreshToken) throws Exception;
 }

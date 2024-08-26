@@ -26,7 +26,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class JwtTokenFilter extends OncePerRequestFilter{
+public class JwtTokenFilter extends OncePerRequestFilter {
     @Value("${api.prefix}")
     private String apiPrefix;
 
@@ -39,12 +39,12 @@ public class JwtTokenFilter extends OncePerRequestFilter{
     private UserRepo userRepo;
 
     @Override
-    protected void doFilterInternal(@NonNull  HttpServletRequest request,
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
         try {
-            if(isBypassToken(request)) {
+            if (isBypassToken(request)) {
                 filterChain.doFilter(request, response); //enable bypass
                 return;
             }
@@ -60,7 +60,7 @@ public class JwtTokenFilter extends OncePerRequestFilter{
             if (email != null
                     && SecurityContextHolder.getContext().getAuthentication() == null) {
                 User userDetails = (User) userDetailsService.loadUserByUsername(email);
-                if(jwtTokenUtil.validateToken(token, userDetails)) {
+                if (jwtTokenUtil.validateToken(token, userDetails)) {
                     UsernamePasswordAuthenticationToken authenticationToken =
                             new UsernamePasswordAuthenticationToken(
                                     userDetails,
@@ -73,11 +73,12 @@ public class JwtTokenFilter extends OncePerRequestFilter{
                 }
             }
             filterChain.doFilter(request, response); //enable bypass
-        }catch (Exception e) {
+        } catch (Exception e) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
         }
     }
-    private boolean isBypassToken(@NonNull  HttpServletRequest request) {
+
+    private boolean isBypassToken(@NonNull HttpServletRequest request) {
 
         final List<Pair<String, String>> bypassTokens = Arrays.asList(
                 Pair.of("/auth/create-user", "POST"),
@@ -86,7 +87,7 @@ public class JwtTokenFilter extends OncePerRequestFilter{
 
 //                Pair.of(String.format("%s/seat/update-seat-status", apiPrefix), "PUT")
         );
-        for(Pair<String, String> bypassToken: bypassTokens) {
+        for (Pair<String, String> bypassToken : bypassTokens) {
             if (request.getServletPath().contains(bypassToken.getFirst()) &&
                     request.getMethod().equals(bypassToken.getSecond())) {
                 return true;

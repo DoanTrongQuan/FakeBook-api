@@ -27,11 +27,11 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/create-user")
-    public ResponseEntity<?>  create(@RequestBody CreateUserRequest createUserRequest)  {
+    public ResponseEntity<?> create(@RequestBody CreateUserRequest createUserRequest) {
         try {
             return ResponseEntity.ok(ApiResponse.<String>builder()
-                            .code(HttpStatus.OK.value())
-                            .message(authService.createUser(createUserRequest))
+                    .code(HttpStatus.OK.value())
+                    .message(authService.createUser(createUserRequest))
                     .build());
         } catch (DataNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -43,7 +43,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?>  login(@RequestBody LoginRequest loginRequest)  {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
             return ResponseEntity.ok(ApiResponse.<LoginResponse>builder()
                     .code(HttpStatus.OK.value())

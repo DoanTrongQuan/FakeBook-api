@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-
 import org.example.identityservice.dto.request.CreateUserRequest;
 import org.example.identityservice.dto.request.LoginRequest;
 import org.example.identityservice.dto.response.LoginResponse;
@@ -20,7 +19,6 @@ import org.example.identityservice.repository.UserRoleRepo;
 import org.example.identityservice.repository.httpclient.ProfileClient;
 import org.example.identityservice.utils.JwtTokenUtils;
 import org.example.identityservice.utils.MessageKeys;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -35,7 +33,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class AuthService implements  IAuthService{
+public class AuthService implements IAuthService {
 
     ProfileClient profileClient;
     ProfileMapper profileMapper;
@@ -52,7 +50,7 @@ public class AuthService implements  IAuthService{
     public String createUser(CreateUserRequest createUserRequest) throws Exception {
 
         User user = userRepo.findByEmail(createUserRequest.getEmail()).orElse(null);
-        if(user != null) {
+        if (user != null) {
             throw new DataIntegrityViolationException(MessageKeys.USER_EARLY_EXITS);
         }
         //todo build user entity to save db
@@ -105,7 +103,7 @@ public class AuthService implements  IAuthService{
     @Override
     public LoginResponse login(LoginRequest loginRequest) throws Exception {
         User existingUser = userRepo.findByEmail(loginRequest.getEmail()).orElse(null);
-        if(existingUser == null) {
+        if (existingUser == null) {
             throw new DataNotFoundException(MessageKeys.USER_DOES_NOT_EXITS);
         }
 
@@ -118,7 +116,6 @@ public class AuthService implements  IAuthService{
 
         //Xác thực người dùng (nếu xác thực không thành công VD: sai pass ) thì sẽ ném ra ngoại lệ
         authenticationManager.authenticate(authenticationToken);
-
 
 
         //todo generate token and refresh token

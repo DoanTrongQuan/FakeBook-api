@@ -1,4 +1,5 @@
 package org.example.identityservice.utils;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -29,7 +30,7 @@ public class JwtTokenUtils {
     @Value("${jwt.expirationRefreshToken}")
     private int expirationRefreshToken;
 
-    public String generateToken(User user) throws Exception{
+    public String generateToken(User user) throws Exception {
         //properties => claims
         Map<String, Object> claims = new HashMap<>();
         //this.generateSecretKey();
@@ -42,26 +43,26 @@ public class JwtTokenUtils {
                     .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                     .compact();
             return token;
-        }catch (Exception e) {
+        } catch (Exception e) {
             //you can "inject" Logger, instead System.out.println
-            throw new InvalidParamException("Cannot create jwt token, error: "+e.getMessage());
+            throw new InvalidParamException("Cannot create jwt token, error: " + e.getMessage());
             //return null;
         }
     }
 
-    public String generateRefreshToken(User user) throws Exception{
+    public String generateRefreshToken(User user) throws Exception {
         Map<String, Object> claims = new HashMap<>();
         claims.put("Email", user.getEmail());
         try {
-          String refreshToken = Jwts.builder()
-                  .setClaims(claims)
-                  .setSubject(user.getEmail())
-                  .setExpiration(new Date(System.currentTimeMillis() + expirationRefreshToken * 1000L))
-                  .signWith(getSignInKey(), SignatureAlgorithm.HS256)
-                  .compact();
+            String refreshToken = Jwts.builder()
+                    .setClaims(claims)
+                    .setSubject(user.getEmail())
+                    .setExpiration(new Date(System.currentTimeMillis() + expirationRefreshToken * 1000L))
+                    .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                    .compact();
             return refreshToken;
-        }catch (Exception e) {
-            throw new InvalidParamException("Cannot create refresh token, error: "+e.getMessage());
+        } catch (Exception e) {
+            throw new InvalidParamException("Cannot create refresh token, error: " + e.getMessage());
         }
     }
 
@@ -70,6 +71,7 @@ public class JwtTokenUtils {
         //Keys.hmacShaKeyFor(Decoders.BASE64.decode("TaqlmGv1iEDMRiFp/pHuID1+T84IABfuA0xXh4GhiUI="));
         return Keys.hmacShaKeyFor(bytes);
     }
+
     private String generateSecretKey() {
         SecureRandom random = new SecureRandom();
         byte[] keyBytes = new byte[32]; // 256-bit key
@@ -77,22 +79,26 @@ public class JwtTokenUtils {
         String secretKey = Encoders.BASE64.encode(keyBytes);
         return secretKey;
     }
-    private Claims extractAllClaims (String token) {
+
+    private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSignInKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
-    public  <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = this.extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
+
     //check expiration
     public boolean isTokenExpired(String token) {
         Date expirationDate = this.extractClaim(token, Claims::getExpiration);
         return expirationDate.before(new Date());
     }
+
     public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -100,6 +106,7 @@ public class JwtTokenUtils {
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
+
     public boolean validateToken(String token, UserDetails userDetails) {
         String email = extractEmail(token);
         return (email.equals(userDetails.getUsername()))
