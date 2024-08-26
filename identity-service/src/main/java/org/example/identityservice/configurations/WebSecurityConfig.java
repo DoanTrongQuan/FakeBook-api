@@ -6,6 +6,7 @@ import org.example.identityservice.filters.JwtTokenFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -41,7 +42,8 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(requests -> {
                     requests
                             .requestMatchers(
-                                    "/auth/create-user"
+                                    "/auth/create-user",
+                                    "/auth/login"
                             )
 
 //                                    String.format("%s/seat/update-seat-status", apiPrefix)

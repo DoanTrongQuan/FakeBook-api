@@ -6,6 +6,9 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 import org.example.identityservice.dto.request.CreateUserRequest;
+import org.example.identityservice.dto.request.LoginRequest;
+import org.example.identityservice.dto.response.LoginResponse;
+import org.example.identityservice.dto.response.TokenResponse;
 import org.example.identityservice.entity.User;
 import org.example.identityservice.entity.UserRole;
 import org.example.identityservice.exceptions.DataNotFoundException;
@@ -15,12 +18,17 @@ import org.example.identityservice.repository.RoleRepo;
 import org.example.identityservice.repository.UserRepo;
 import org.example.identityservice.repository.UserRoleRepo;
 import org.example.identityservice.repository.httpclient.ProfileClient;
+import org.example.identityservice.utils.JwtTokenUtils;
 import org.example.identityservice.utils.MessageKeys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.UUID;
 
 @Service
@@ -36,7 +44,8 @@ public class AuthService implements  IAuthService{
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
     private final RoleRepo roleRepo;
-
+    AuthenticationManager authenticationManager;
+    JwtTokenUtils jwtTokenUtils;
 
     @Override
     @Transactional
@@ -72,5 +81,58 @@ public class AuthService implements  IAuthService{
 
         userRoleRepo.save(userRole);
         return "Create successful";
+    }
+
+
+    private TokenResponse createTokenResponse(User user) throws Exception {
+
+        String accessToken = jwtTokenUtils.generateToken(user);
+        //todo get Expiration of token
+        Date access_expired_at = jwtTokenUtils.extractExpiration(accessToken);
+        //todo generate refresh token
+        String refreshToken = jwtTokenUtils.generateRefreshToken(user);
+        //todo get Expiration of refresh token
+        Date refresh_expired_at = jwtTokenUtils.extractExpiration(refreshToken);
+
+        return TokenResponse.builder()
+                .accessToken(accessToken)
+                .access_expired_at(access_expired_at)
+                .refreshToken(refreshToken)
+                .refresh_expired_at(refresh_expired_at)
+                .build();
+    }
+
+    @Override
+    public LoginResponse login(LoginRequest loginRequest) throws Exception {
+        User existingUser = userRepo.findByEmail(loginRequest.getEmail()).orElse(null);
+        if(existingUser == null) {
+            throw new DataNotFoundException(MessageKeys.USER_DOES_NOT_EXITS);
+        }
+
+        //Chuyền email,password, role vào authenticationToken để xac thực ngươi dùng
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                loginRequest.getEmail(),
+                loginRequest.getPassword(),
+                existingUser.getAuthorities()
+        );
+
+        //Xác thực người dùng (nếu xác thực không thành công VD: sai pass ) thì sẽ ném ra ngoại lệ
+        authenticationManager.authenticate(authenticationToken);
+
+
+
+        //todo generate token and refresh token
+        TokenResponse tokenResponse = createTokenResponse(existingUser);
+
+        return LoginResponse.builder()
+                .email(existingUser.getEmail())
+                .dataToken(tokenResponse)
+                .build();
+    }
+
+    @Override
+    public TokenResponse refreshToken(String refreshToken) throws Exception {
+
+        return null;
     }
 }

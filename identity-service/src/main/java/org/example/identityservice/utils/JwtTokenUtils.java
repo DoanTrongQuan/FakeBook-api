@@ -26,6 +26,9 @@ public class JwtTokenUtils {
     private int expiration; //save to an environment variable
     @Value("${jwt.secretKey}")
     private String secretKey;
+    @Value("${jwt.expirationRefreshToken}")
+    private int expirationRefreshToken;
+
     public String generateToken(User user) throws Exception{
         //properties => claims
         Map<String, Object> claims = new HashMap<>();
@@ -45,6 +48,23 @@ public class JwtTokenUtils {
             //return null;
         }
     }
+
+    public String generateRefreshToken(User user) throws Exception{
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("Email", user.getEmail());
+        try {
+          String refreshToken = Jwts.builder()
+                  .setClaims(claims)
+                  .setSubject(user.getEmail())
+                  .setExpiration(new Date(System.currentTimeMillis() + expirationRefreshToken * 1000L))
+                  .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                  .compact();
+            return refreshToken;
+        }catch (Exception e) {
+            throw new InvalidParamException("Cannot create refresh token, error: "+e.getMessage());
+        }
+    }
+
     private Key getSignInKey() {
         byte[] bytes = Decoders.BASE64.decode(secretKey);
         //Keys.hmacShaKeyFor(Decoders.BASE64.decode("TaqlmGv1iEDMRiFp/pHuID1+T84IABfuA0xXh4GhiUI="));
@@ -75,6 +95,10 @@ public class JwtTokenUtils {
     }
     public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
     }
     public boolean validateToken(String token, UserDetails userDetails) {
         String email = extractEmail(token);
