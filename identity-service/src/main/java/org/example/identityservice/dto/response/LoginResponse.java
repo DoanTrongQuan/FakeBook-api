@@ -3,6 +3,8 @@ package org.example.identityservice.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -10,5 +12,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LoginResponse {
     String email;
+    List<String> roles;
     TokenResponse dataToken;
 }

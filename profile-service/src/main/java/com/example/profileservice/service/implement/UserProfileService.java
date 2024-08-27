@@ -1,6 +1,7 @@
 package com.example.profileservice.service.implement;
 
 import com.example.profileservice.dto.request.CreateUserProfileRequest;
+import com.example.profileservice.dto.request.UpdateUserProfileRequest;
 import com.example.profileservice.dto.response.CreateUserProfileResponse;
 import com.example.profileservice.dto.response.UserProfileResponse;
 import com.example.profileservice.entity.UserProfile;
@@ -44,5 +45,21 @@ public class UserProfileService implements IUserProfileService {
         }
 
         return userProfileMapper.toUserProfileResponse(userProfile);
+    }
+
+    @Override
+    public UserProfile updateUserProfile(UpdateUserProfileRequest updateUserProfileRequest) throws Exception {
+        UserProfile userProfile = userProfileRepo.findByUserId(updateUserProfileRequest.getUserId());
+        if(userProfile == null) {
+            throw new DataNotFoundException(MessageKeys.USER_PROFILE_DOES_NOT_EXIST);
+        }
+        userProfile.setCity(updateUserProfileRequest.getCity());
+        userProfile.setDob(updateUserProfileRequest.getDob());
+        userProfile.setFirstName(updateUserProfileRequest.getFirstName());
+        userProfile.setLastName(updateUserProfileRequest.getLastName());
+        userProfile.setUsername(updateUserProfileRequest.getUsername());
+        userProfile = userProfileRepo.save(userProfile);
+
+        return userProfile;
     }
 }

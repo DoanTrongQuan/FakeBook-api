@@ -7,7 +7,7 @@ import org.example.identityservice.dto.request.CreateUserRequest;
 import org.example.identityservice.dto.request.LoginRequest;
 import org.example.identityservice.dto.response.LoginResponse;
 import org.example.identityservice.exceptions.DataNotFoundException;
-import org.example.identityservice.service.AuthService;
+import org.example.identityservice.service.implement.AuthService;
 import org.example.identityservice.utils.MessageKeys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;

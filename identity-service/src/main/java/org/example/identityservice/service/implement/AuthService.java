@@ -1,4 +1,4 @@
-package org.example.identityservice.service;
+package org.example.identityservice.service.implement;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +18,9 @@ import org.example.identityservice.repository.RoleRepo;
 import org.example.identityservice.repository.UserRepo;
 import org.example.identityservice.repository.UserRoleRepo;
 import org.example.identityservice.repository.httpclient.ProfileClient;
+import org.example.identityservice.service.iservice.IAuthService;
 import org.example.identityservice.utils.JwtTokenUtils;
 import org.example.identityservice.utils.MessageKeys;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,13 +29,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class AuthService implements  IAuthService{
+public  class AuthService implements IAuthService {
 
     ProfileClient profileClient;
     ProfileMapper profileMapper;
@@ -119,13 +121,17 @@ public class AuthService implements  IAuthService{
         //Xác thực người dùng (nếu xác thực không thành công VD: sai pass ) thì sẽ ném ra ngoại lệ
         authenticationManager.authenticate(authenticationToken);
 
-
-
         //todo generate token and refresh token
         TokenResponse tokenResponse = createTokenResponse(existingUser);
 
+        //todo get roles
+        List<UserRole> userRoles = userRoleRepo.findAllByUser(existingUser);
+
+
         return LoginResponse.builder()
                 .email(existingUser.getEmail())
+                .roles(userRoles.stream().map(role ->
+                     role.getRole().getRoleName()).collect(Collectors.toList()))
                 .dataToken(tokenResponse)
                 .build();
     }

@@ -1,4 +1,4 @@
-package org.example.identityservice.service;
+package org.example.identityservice.service.iservice;
 
 import org.example.identityservice.dto.request.CreateUserRequest;
 import org.example.identityservice.dto.request.LoginRequest;
