@@ -7,4 +7,5 @@ public class MessageKeys {
     public static final String USER_DOES_NOT_EXITS =  "User does not exist";
     public static final String LOGIN_SUCCESSFULLY =  "Login successful";
     public static final String LOGIN_FAILED =  "Login failed";
+    public static final String UNAUTHENTICATED =  "Unauthenticated";
 }

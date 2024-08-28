@@ -51,9 +51,9 @@ public class JwtTokenUtils {
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
-    public boolean validateToken(String token, User user) {
+    public boolean validateToken(String token) {
         String email = extractEmail(token);
-        return (email.equals(user.getUsername()))
-                && !isTokenExpired(token);
+        return !isTokenExpired(token);
+
     }
 }
