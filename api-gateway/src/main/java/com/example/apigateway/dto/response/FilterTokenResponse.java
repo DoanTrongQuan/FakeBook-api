@@ -1,4 +1,4 @@
-package com.example.apigateway.dto.request;
+package com.example.apigateway.dto.response;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -12,6 +12,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class IntrospectRequest {
-    String token;
+public class FilterTokenResponse {
+    boolean valid;
 }

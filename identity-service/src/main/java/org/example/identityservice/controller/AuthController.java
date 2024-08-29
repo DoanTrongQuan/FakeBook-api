@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.identityservice.dto.ApiResponse;
 import org.example.identityservice.dto.request.CreateUserRequest;
 import org.example.identityservice.dto.request.LoginRequest;
+import org.example.identityservice.dto.response.FilterTokenResponse;
 import org.example.identityservice.dto.response.LoginResponse;
 import org.example.identityservice.exceptions.DataNotFoundException;
 import org.example.identityservice.service.implement.AuthService;
@@ -55,6 +56,12 @@ public class AuthController {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    @PostMapping("/filter-token")
+    public FilterTokenResponse  filterToken(@RequestBody String token)  {
+            return authService.filterToken(token);
     }
 
 

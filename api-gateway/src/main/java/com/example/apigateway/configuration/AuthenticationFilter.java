@@ -1,6 +1,7 @@
 package com.example.apigateway.configuration;
 
 import com.example.apigateway.dto.ApiResponse;
+import com.example.apigateway.service.IdentityService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -32,10 +33,11 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PACKAGE, makeFinal = true)
 public class AuthenticationFilter implements GlobalFilter, Ordered {
     ObjectMapper objectMapper;
+    private final IdentityService identityService;
 
     @NonFinal
     private String[] publicEndpoints = {
-            "/identity/auth/**",
+            "/identity/auth/login",
     };
 
     @Value("${app.api-prefix}")
@@ -56,7 +58,13 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
         String token = authHeader.getFirst().replace("Bearer ", "");
         log.info("Token: {}", token);
-    return null;
+
+        return identityService.filterToken(token).flatMap(filterTokenResponse -> {
+            if(filterTokenResponse.isValid())
+                return chain.filter(exchange);
+            else
+                return  unauthenticated(exchange.getResponse());
+        }).onErrorResume(throwable -> unauthenticated(exchange.getResponse()));
     }
 
     @Override

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.example.identityservice.dto.request.CreateUserRequest;
 import org.example.identityservice.dto.request.LoginRequest;
+import org.example.identityservice.dto.response.FilterTokenResponse;
 import org.example.identityservice.dto.response.LoginResponse;
 import org.example.identityservice.dto.response.TokenResponse;
 import org.example.identityservice.entity.User;
@@ -24,13 +25,16 @@ import org.example.identityservice.utils.MessageKeys;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Filter;
 import java.util.stream.Collectors;
 
 @Service
@@ -125,8 +129,7 @@ public  class AuthService implements IAuthService {
         TokenResponse tokenResponse = createTokenResponse(existingUser);
 
         //todo get roles
-        List<UserRole> userRoles = userRoleRepo.findAllByUser(existingUser);
-
+        Set<UserRole> userRoles = userRoleRepo.findAllByUser(existingUser);
 
         return LoginResponse.builder()
                 .email(existingUser.getEmail())
@@ -140,5 +143,30 @@ public  class AuthService implements IAuthService {
     public TokenResponse refreshToken(String refreshToken) throws Exception {
 
         return null;
+    }
+
+    @Override
+    public FilterTokenResponse filterToken(String token)  {
+        String email = jwtTokenUtils.extractEmail(token);
+        log.info("Email: {}", email);
+        User user = userRepo.findByEmail(email).orElse(null);
+        if (user != null) {
+            if(jwtTokenUtils.validateToken(token, user)) {
+
+
+                Set<UserRole>  userRoles = userRoleRepo.findAllByUser(user);
+                user.setUserRoles( userRoles.isEmpty() ? null : userRoles );
+
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            }
+            log.info("Test token response :" + FilterTokenResponse.builder().valid(true).build().toString());
+            return FilterTokenResponse.builder()
+                    .valid(true)
+                    .build();
+        }
+        return FilterTokenResponse.builder()
+                .valid(false)
+                .build();
     }
 }

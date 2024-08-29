@@ -44,21 +44,17 @@ public class WebSecurityConfig {
                     requests
                             .requestMatchers(
                                     "/auth/create-user",
-                                    "/auth/login"
+                                    "/auth/login",
+                                    "/auth/filter-token",
+                                    "auth/get-info"
                             )
 
-//                                    String.format("%s/seat/update-seat-status", apiPrefix)
                             .permitAll()
-                            .requestMatchers(GET, "/auth/get-info").hasAuthority("USER")
+//                            .requestMatchers(GET, "/auth/get-info").hasAuthority("USER")
                             .anyRequest().authenticated();
                     //.anyRequest().permitAll();
 
-                });
-
-        http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
-                                .decoder(customJwtDecoder)
-                                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint()))
+                })
                 .csrf(AbstractHttpConfigurer::disable);
 
         http.cors(new Customizer<CorsConfigurer<HttpSecurity>>() {

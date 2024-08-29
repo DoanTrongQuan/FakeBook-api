@@ -6,6 +6,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.identityservice.entity.User;
 import org.example.identityservice.exceptions.InvalidParamException;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtTokenUtils {
@@ -100,9 +102,10 @@ public class JwtTokenUtils {
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
-    public boolean validateToken(String token, UserDetails userDetails) {
+    public boolean validateToken(String token, UserDetails user) {
         String email = extractEmail(token);
-        return (email.equals(userDetails.getUsername()))
+        log.info("UserName :" + user.getUsername());
+        return (email.equals(user.getUsername()))
                 && !isTokenExpired(token);
     }
 }
