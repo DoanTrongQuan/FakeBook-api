@@ -111,6 +111,8 @@ public  class AuthService implements IAuthService {
     @Override
     public LoginResponse login(LoginRequest loginRequest) throws Exception {
         User existingUser = userRepo.findByEmail(loginRequest.getEmail()).orElse(null);
+
+        log.info("existingUser :" + existingUser);
         if(existingUser == null) {
             throw new DataNotFoundException(MessageKeys.USER_DOES_NOT_EXITS);
         }
@@ -160,7 +162,6 @@ public  class AuthService implements IAuthService {
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
-            log.info("Test token response :" + FilterTokenResponse.builder().valid(true).build().toString());
             return FilterTokenResponse.builder()
                     .valid(true)
                     .build();

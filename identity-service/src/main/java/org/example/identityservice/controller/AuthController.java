@@ -64,7 +64,7 @@ public class AuthController {
             return authService.filterToken(token);
     }
 
-
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/get-info")
     public String  getInfo()  {
         return "Hello Đoàn Trọng Quân";

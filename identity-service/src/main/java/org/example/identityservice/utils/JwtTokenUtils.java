@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.identityservice.entity.User;
+import org.example.identityservice.entity.UserRole;
 import org.example.identityservice.exceptions.InvalidParamException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,10 +16,10 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.security.SecureRandom;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -35,7 +36,14 @@ public class JwtTokenUtils {
         //properties => claims
         Map<String, Object> claims = new HashMap<>();
         //this.generateSecretKey();
-        claims.put("Email", user.getEmail());
+        log.info("test user :" + user);
+
+
+
+
+        claims.put("roles", user.getUserRoles().stream().map(role -> role.getRole().getRoleName()).collect(Collectors.toList()));
+        claims.put("email", user.getEmail());
+
         try {
             String token = Jwts.builder()
                     .setClaims(claims) //how to extract claims from this ?

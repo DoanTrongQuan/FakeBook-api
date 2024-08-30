@@ -30,7 +30,7 @@ public class User extends BaseEntity implements UserDetails {
     private String password;
     private boolean emailVerified;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonBackReference
     private Set<UserRole> userRoles;
 

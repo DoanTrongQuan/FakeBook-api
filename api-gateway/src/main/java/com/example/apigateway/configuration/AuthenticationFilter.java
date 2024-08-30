@@ -1,6 +1,7 @@
 package com.example.apigateway.configuration;
 
 import com.example.apigateway.dto.ApiResponse;
+import com.example.apigateway.dto.response.FilterTokenResponse;
 import com.example.apigateway.service.IdentityService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,12 +60,23 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         String token = authHeader.getFirst().replace("Bearer ", "");
         log.info("Token: {}", token);
 
-        return identityService.filterToken(token).flatMap(filterTokenResponse -> {
+        Mono<FilterTokenResponse> filterTokenResponseMono = identityService.filterToken(token);
+        log.info(String.valueOf(filterTokenResponseMono));
+
+        return filterTokenResponseMono.flatMap(filterTokenResponse -> {
             if(filterTokenResponse.isValid())
                 return chain.filter(exchange);
             else
                 return  unauthenticated(exchange.getResponse());
         }).onErrorResume(throwable -> unauthenticated(exchange.getResponse()));
+
+
+//        return identityService.filterToken(token).flatMap(filterTokenResponse -> {
+//            if(filterTokenResponse.isValid())
+//                return chain.filter(exchange);
+//            else
+//                return  unauthenticated(exchange.getResponse());
+//        }).onErrorResume(throwable -> unauthenticated(exchange.getResponse()));
     }
 
     @Override
