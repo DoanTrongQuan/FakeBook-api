@@ -61,13 +61,20 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         log.info("Token: {}", token);
 
         Mono<FilterTokenResponse> filterTokenResponseMono = identityService.filterToken(token);
-        log.info(String.valueOf(filterTokenResponseMono));
 
-        return filterTokenResponseMono.flatMap(filterTokenResponse -> {
-            if(filterTokenResponse.isValid())
+//        filterTokenResponseMono.subscribe(filterTokenResponse -> {
+//            log.info("hello :" + String.valueOf(filterTokenResponse));
+//        });
+
+        return identityService.filterToken(token).flatMap(filterTokenResponse -> {
+
+            if(filterTokenResponse.isValid()){
+                System.out.println("hello1 :" + filterTokenResponse.isValid());
                 return chain.filter(exchange);
-            else
+            }else {
+
                 return  unauthenticated(exchange.getResponse());
+            }
         }).onErrorResume(throwable -> unauthenticated(exchange.getResponse()));
 
 

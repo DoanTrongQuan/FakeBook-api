@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.identityservice.entity.User;
 import org.example.identityservice.entity.UserRole;
 import org.example.identityservice.exceptions.InvalidParamException;
+import org.example.identityservice.repository.UserRoleRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -32,16 +34,16 @@ public class JwtTokenUtils {
     @Value("${jwt.expirationRefreshToken}")
     private int expirationRefreshToken;
 
+    @Autowired
+    private UserRoleRepo userRoleRepo;
     public String generateToken(User user) throws Exception{
         //properties => claims
         Map<String, Object> claims = new HashMap<>();
         //this.generateSecretKey();
-        log.info("test user :" + user);
+        Set<UserRole> userRoles = userRoleRepo.findAllByUser(user);
 
 
-
-
-        claims.put("roles", user.getUserRoles().stream().map(role -> role.getRole().getRoleName()).collect(Collectors.toList()));
+        claims.put("scope", userRoles.stream().map(role ->  role.getRole().getRoleName()).collect(Collectors.joining(" ")));
         claims.put("email", user.getEmail());
 
         try {
@@ -110,7 +112,7 @@ public class JwtTokenUtils {
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
-    public boolean validateToken(String token, UserDetails user) {
+    public boolean validateToken(String token, User user) {
         String email = extractEmail(token);
         log.info("UserName :" + user.getUsername());
         return (email.equals(user.getUsername()))

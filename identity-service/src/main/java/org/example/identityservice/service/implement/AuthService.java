@@ -109,13 +109,13 @@ public  class AuthService implements IAuthService {
     }
 
     @Override
+    @Transactional
     public LoginResponse login(LoginRequest loginRequest) throws Exception {
         User existingUser = userRepo.findByEmail(loginRequest.getEmail()).orElse(null);
-
-        log.info("existingUser :" + existingUser);
         if(existingUser == null) {
             throw new DataNotFoundException(MessageKeys.USER_DOES_NOT_EXITS);
         }
+        log.info(existingUser.getUserRoles().toString());
 
         //Chuyền email,password, role vào authenticationToken để xac thực ngươi dùng
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
@@ -148,20 +148,14 @@ public  class AuthService implements IAuthService {
     }
 
     @Override
-    public FilterTokenResponse filterToken(String token)  {
+    public FilterTokenResponse filterToken(String token) {
         String email = jwtTokenUtils.extractEmail(token);
-        log.info("Email: {}", email);
         User user = userRepo.findByEmail(email).orElse(null);
-        if (user != null) {
-            if(jwtTokenUtils.validateToken(token, user)) {
+        log.info(user.toString());
 
+        if (user == null) { return FilterTokenResponse.builder().valid(false).build(); }
+        if (jwtTokenUtils.validateToken(token, user)) {
 
-                Set<UserRole>  userRoles = userRoleRepo.findAllByUser(user);
-                user.setUserRoles( userRoles.isEmpty() ? null : userRoles );
-
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-            }
             return FilterTokenResponse.builder()
                     .valid(true)
                     .build();
@@ -169,5 +163,7 @@ public  class AuthService implements IAuthService {
         return FilterTokenResponse.builder()
                 .valid(false)
                 .build();
+        }
     }
-}
+
+

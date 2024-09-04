@@ -39,23 +39,33 @@ public class WebSecurityConfig {
     @Bean
     //Pair.of(String.format("%s/products", apiPrefix), "GET"),
     public SecurityFilterChain securityFilterChain(HttpSecurity http)  throws Exception{
+
         http
                 .authorizeHttpRequests(requests -> {
                     requests
                             .requestMatchers(
                                     "/auth/create-user",
                                     "/auth/login",
-                                    "/auth/filter-token",
-                                    "auth/get-info"
+                                    "/auth/filter-token"
+
                             )
 
                             .permitAll()
-//                            .requestMatchers(GET, "/auth/get-info").hasAuthority("USER")
+//                            .requestMatchers(GET, "/auth/get-info").hasAuthority("ROLE_ADMIN")
+
                             .anyRequest().authenticated();
                     //.anyRequest().permitAll();
 
-                })
-                .csrf(AbstractHttpConfigurer::disable);
+                });
+
+        http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
+
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+
+                .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
+
+        http.csrf(AbstractHttpConfigurer::disable);
+
 
         http.cors(new Customizer<CorsConfigurer<HttpSecurity>>() {
             @Override
@@ -78,7 +88,7 @@ public class WebSecurityConfig {
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);

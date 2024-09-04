@@ -2,6 +2,7 @@ package org.example.identityservice.controller;
 
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.identityservice.dto.ApiResponse;
 import org.example.identityservice.dto.request.CreateUserRequest;
 import org.example.identityservice.dto.request.LoginRequest;
@@ -15,8 +16,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -61,12 +64,18 @@ public class AuthController {
 
     @PostMapping("/filter-token")
     public FilterTokenResponse  filterToken(@RequestBody String token)  {
-            return authService.filterToken(token);
+        FilterTokenResponse filterTokenResponse = authService.filterToken(token);
+        log.info(String.valueOf(filterTokenResponse.isValid()));
+            return filterTokenResponse;
     }
 
-    @PreAuthorize("hasRole('USER')")
+//    @PreAuthorize("hasAnyAuthority('ROLE_USER')")
     @GetMapping("/get-info")
     public String  getInfo()  {
+        var authetication = SecurityContextHolder.getContext().getAuthentication();
+        log.info("Email :" + String.valueOf(authetication.getPrincipal()));
+
+        authetication.getAuthorities().forEach(grantedAuthority -> log.info("roles :" + String.valueOf(grantedAuthority.getAuthority())));
         return "Hello Đoàn Trọng Quân";
     }
 }

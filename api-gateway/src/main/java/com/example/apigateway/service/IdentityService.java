@@ -18,17 +18,6 @@ public class IdentityService {
     IdentityClient identityClient;
 
     public Mono<FilterTokenResponse> filterToken(String token) {
-        Mono<FilterTokenResponse> filterTokenResponseMono = identityClient.filterToken(token);
-
-        filterTokenResponseMono.flatMap(filterTokenResponse -> {
-            if(filterTokenResponse.isValid()) {
-                log.info("Test result :  hop le");
-                return Mono.just(filterTokenResponse);
-            } else {
-                log.info("Test result : khong hop le");
-                return Mono.just(filterTokenResponse);
-            }
-        });
-        return filterTokenResponseMono;
+        return identityClient.filterToken(token);
     }
 }
